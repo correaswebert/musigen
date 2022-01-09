@@ -1,17 +1,11 @@
 import datetime
 import random
-import time
 from pathlib import Path
 
 import pyo
 
-from musigen.algo.algo import (
-    Genome,
-    generate_genome,
-    mutation,
-    selection_pair,
-    single_point_crossover,
-)
+from musigen.algo.evolution import Evolution
+from musigen.algo.population import Population
 from musigen.misc.helper import get_fitness_score
 from musigen.player.midi import save_genome_to_midi
 from musigen.player.player import MusicPlayer, Tune
@@ -35,80 +29,38 @@ def main():
 
     tune = Tune(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
 
-    population_id = 0
-    population = [
-        generate_genome(num_bars * num_notes * MusicPlayer.BITS_PER_NOTE)
-        for _ in range(population_size)
-    ]
-
     player = MusicPlayer()
 
+    evo = Evolution(
+        mutation_probability=mutation_probability,
+        num_mutation_rounds=num_mutations,
+        fitness_limit=5,
+        generation_limit=3,
+    )
+
+    ppl = Population()
+    ppl.generate_population(
+        population_size=population_size,
+        genome_length=(num_bars * num_notes * MusicPlayer.BITS_PER_NOTE),
+    )
+
+    population_id = 0
     while True:
-        random.shuffle(population)
+        random.shuffle(ppl.genomes)
 
         # generate fitness scores
-        population_fitness: list[tuple[Genome, int]] = []
-        for genome in population:
+        for i, genome in enumerate(ppl.genomes):
             player.play_tune(genome, s, tune)
-            genome_fitness_score = get_fitness_score()
-            population_fitness.append((genome, genome_fitness_score))
+            ppl.fitness[i] = get_fitness_score()
 
-        sorted_population_fitness = sorted(
-            population_fitness, key=lambda e: e[1], reverse=True
-        )
-
-        population = [e[0] for e in sorted_population_fitness]
-
-        next_generation = population[:2]
-
-        for _ in range(len(population) // 2 - 1):
-
-            def fitness_lookup(genome):
-                for e in population_fitness:
-                    if e[0] == genome:
-                        return e[1]
-                return 0
-
-            parents = selection_pair(population, fitness_lookup)
-            offspring_a, offspring_b = single_point_crossover(parents[0], parents[1])
-            offspring_a = mutation(
-                offspring_a,
-                number_of_mutation_rounds=num_mutations,
-                mutation_probability=mutation_probability,
-            )
-            offspring_b = mutation(
-                offspring_b,
-                number_of_mutation_rounds=num_mutations,
-                mutation_probability=mutation_probability,
-            )
-            next_generation += [offspring_a, offspring_b]
-
+        evo.run_evolution(ppl, generate_stats=True)
         print(f"population {population_id} done")
 
-        events = player.genome_to_events(population[0], tune)
-        for e in events:
-            e.play()
-        s.start()
-        input("here is the no1 hit …")
-        s.stop()
-        for e in events:
-            e.stop()
-
-        time.sleep(1)
-
-        # events = player.genome_to_events(population[1], tune)
-        # for e in events:
-        #     e.play()
-        # s.start()
-        # input("here is the second best …")
-        # s.stop()
-        # for e in events:
-        #     e.stop()
-
-        # time.sleep(1)
+        print("Here is the best tune")
+        player.play_tune(ppl.genomes[0], s, tune)
 
         print("saving population midi …")
-        for i, genome in enumerate(population):
+        for i, genome in enumerate(ppl.genomes):
             filename = f"{scale}-{key}-{i}.mid"
             filepath = dirname / f"{population_id}" / filename
             save_genome_to_midi(filepath, genome, tune)
@@ -117,7 +69,6 @@ def main():
         if input("continue? [Y/n]").lower() != "y":
             break
 
-        population = next_generation
         population_id += 1
 
 

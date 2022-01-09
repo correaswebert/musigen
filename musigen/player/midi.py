@@ -3,7 +3,7 @@ from pathlib import Path
 
 from midiutil import MIDIFile
 
-from musigen.algo.algo import Genome
+from musigen.algo.genome import Genome
 
 from musigen.player.player import MusicPlayer as player
 from musigen.player.player import Tune, Melody

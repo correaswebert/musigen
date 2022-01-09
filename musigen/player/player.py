@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import time
-from musigen.algo.algo import Genome
-from musigen.misc.helper import int_from_bits
+from ..algo.genome import Genome
+from ..misc.helper import int_from_bits
 import pyo
 
 
@@ -123,11 +123,12 @@ class MusicPlayer:
             e.play()
         s.start()
 
-        rating = input("Rating (0-5)")
+        input("Press ENTER to stop playback")
 
         for e in events:
             e.stop()
         s.stop()
+
         time.sleep(1)
 
     def play_metronome(self, bpm: int):
