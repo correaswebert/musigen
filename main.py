@@ -54,22 +54,21 @@ def main():
             ppl.fitness[i] = get_fitness_score()
 
         evo.run_evolution(ppl, generate_stats=True)
-        print(f"population {population_id} done")
 
-        print("Here is the best tune")
-        player.play_tune(ppl.genomes[0], s, tune)
-
-        print("saving population midi …")
-        for i, genome in enumerate(ppl.genomes):
-            filename = f"{scale}-{key}-{i}.mid"
-            filepath = dirname / f"{population_id}" / filename
-            save_genome_to_midi(filepath, genome, tune)
-        print("done")
-
-        if input("continue? [Y/n]").lower() != "y":
+        if input("Continue to next generation? [Y/n] ").lower() != "y":
             break
 
         population_id += 1
+
+    print("Here is the best tune")
+    player.play_tune(ppl.genomes[0], s, tune)
+
+    print("saving population midi …")
+    for i, genome in enumerate(ppl.genomes):
+        filename = f"{scale}-{key}-{i}.mid"
+        filepath = dirname / f"{population_id}" / filename
+        save_genome_to_midi(filepath, genome, tune)
+    print("done")
 
 
 if __name__ == "__main__":
