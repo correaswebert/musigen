@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+click = "==7.1.2"
+midiutil = "==1.2.1"
+pyo = "*"
+colorlog = "*"
+progress = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
