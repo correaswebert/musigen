@@ -75,7 +75,7 @@ class Evolution:
 
         return genome
 
-    def run_evolution(self, ppl: Population, generate_stats: bool = False):
+    def run_evolution(self, ppl: Population) -> list[Genome]:
         """Runs the evolution process creating a new population
 
         :param ppl: population of genomes
@@ -83,25 +83,21 @@ class Evolution:
         """
 
         # var iteration is function scoped
-        for generation_idx in range(self.generation_limit):
-            ppl.sort_population(inplace=True)
+        ppl.sort_population(inplace=True)
 
-            if generate_stats:
-                ppl.print_stats(generation_idx)
+        if ppl.get_genome_fitness(index=0) >= self.fitness_limit:
+            return
 
-            if ppl.get_genome_fitness(index=0) >= self.fitness_limit:
-                break
+        # top two genomes of the population carried forward
+        next_generation = ppl.genomes[0:2]
 
-            # top two genomes of the population carried forward
-            next_generation = ppl.genomes[0:2]
+        for _ in range(len(ppl) // 2 - 1):
+            parents = ppl.pair_selection()
+            offspring_a, offspring_b = self.single_point_crossover(parents)
 
-            for _ in range(len(ppl) // 2 - 1):
-                parents = ppl.pair_selection()
-                offspring_a, offspring_b = self.single_point_crossover(parents)
+            mutated_offspring_a = self.create_mutations(offspring_a)
+            mutated_offspring_b = self.create_mutations(offspring_b)
 
-                mutated_offspring_a = self.create_mutations(offspring_a)
-                mutated_offspring_b = self.create_mutations(offspring_b)
+            next_generation.extend([mutated_offspring_a, mutated_offspring_b])
 
-                next_generation.extend([mutated_offspring_a, mutated_offspring_b])
-
-            ppl.genomes = next_generation
+        return next_generation

@@ -46,29 +46,34 @@ def main():
 
     population_id = 0
     while True:
-        random.shuffle(ppl.genomes)
+        try:
+            random.shuffle(ppl.genomes)
 
-        # generate fitness scores
-        for i, genome in enumerate(ppl.genomes):
-            player.play_tune(genome, s, tune)
-            ppl.fitness[i] = get_fitness_score()
+            # generate fitness scores
+            for i, genome in enumerate(ppl.genomes):
+                player.play_tune(genome, s, tune)
+                ppl.fitness[i] = get_fitness_score()
 
-        evo.run_evolution(ppl, generate_stats=True)
+            evo.run_evolution(ppl)
+            ppl.print_stats(population_id)
 
-        if input("Continue to next generation? [Y/n] ").lower() != "y":
+            population_id += 1
+        
+        except KeyboardInterrupt:
+            s.stop()
+            print()
             break
-
-        population_id += 1
-
-    print("Here is the best tune")
+    
+    print("Playing the best tune generated...")
     player.play_tune(ppl.genomes[0], s, tune)
 
-    print("saving population midi …")
-    for i, genome in enumerate(ppl.genomes):
+    print("Saving the top two tunes...")
+    for i, genome in enumerate(ppl.genomes[:2]):
         filename = f"{scale}-{key}-{i}.mid"
         filepath = dirname / f"{population_id}" / filename
         save_genome_to_midi(filepath, genome, tune)
-    print("done")
+    
+    print("Done.")
 
 
 if __name__ == "__main__":
