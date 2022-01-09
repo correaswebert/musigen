@@ -91,14 +91,12 @@ class Population:
 
     def print_stats(self, generation_id: int):
         """Print population stats"""
-        sorted_population = self.sort_population()
 
         print(
             f"GENERATION {generation_id:02d}",
-            "=============",
-            f"Population: [{', '.join([genome_to_string(gene) for gene in self.genomes])}]",
-            f"Avg. Fitness: {(self.population_fitness() / len(self))}",
-            f"Best: {genome_to_string(sorted_population[0])} ({self.get_genome_fitness(0)})",
-            f"Worst: {genome_to_string(sorted_population[-1])} ({self.get_genome_fitness(-1)})",
-            sep="\n"
+            "======================",
+            f"Average Fitness: {(self.population_fitness() / len(self)):.2f}",
+            f"   Best Fitness: {self.get_genome_fitness(index=0)}",
+            f"  Worst Fitness: {self.get_genome_fitness(index=-1)}",
+            sep="\n",
         )
