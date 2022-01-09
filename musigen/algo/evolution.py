@@ -75,30 +75,28 @@ class Evolution:
 
         return genome
 
-    def run_evolution(self, pm: Population, generate_stats: bool = False):
+    def run_evolution(self, ppl: Population, generate_stats: bool = False):
         """Runs the evolution process creating a new population
 
-        :param pm:
-        :param em:
-        :param generate_stats:
-        :returns: new population and number of iterations required to generate it
+        :param ppl: population of genomes
+        :param generate_stats: if True then intermediate round stats shown
         """
 
         # var iteration is function scoped
-        for iteration in range(self.generation_limit):
-            pm.sort_population(inplace=True)
+        for generation_idx in range(self.generation_limit):
+            ppl.sort_population(inplace=True)
 
             if generate_stats:
-                self.print_stats(pm, iteration)
+                ppl.print_stats(generation_idx)
 
-            if pm.get_genome_fitness(index=0) >= self.fitness_limit:
+            if ppl.get_genome_fitness(index=0) >= self.fitness_limit:
                 break
 
             # top two genomes of the population carried forward
-            next_generation = pm.genomes[0:2]
+            next_generation = ppl.genomes[0:2]
 
-            for _ in range(len(pm) // 2 - 1):
-                parents = pm.pair_selection()
+            for _ in range(len(ppl) // 2 - 1):
+                parents = ppl.pair_selection()
                 offspring_a, offspring_b = self.single_point_crossover(parents)
 
                 mutated_offspring_a = self.create_mutations(offspring_a)
@@ -106,17 +104,4 @@ class Evolution:
 
                 next_generation.extend([mutated_offspring_a, mutated_offspring_b])
 
-            pm.genomes = next_generation
-
-    @staticmethod
-    def print_stats(pm: Population, generation_id: int):
-        sorted_population = pm.sort_population()
-
-        return (
-            f"GENERATION {generation_id:02d}\n"
-            "=============\n"
-            f"Population: [{', '.join([genome_to_string(gene) for gene in pm.genomes])}]\n"
-            f"Avg. Fitness: {(pm.population_fitness() / len(pm))}\n"
-            f"Best: {genome_to_string(sorted_population[0])} ({pm.get_genome_fitness(0)})\n"
-            f"Worst: {genome_to_string(sorted_population[-1])} ({pm.get_genome_fitness(-1)})\n"
-        )
+            ppl.genomes = next_generation
