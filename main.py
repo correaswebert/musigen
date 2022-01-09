@@ -14,7 +14,7 @@ from musigen.algo.algo import (
 from musigen.misc.helper import get_fitness_score
 from musigen.player.midi import save_genome_to_midi
 from musigen.player.player import MusicPlayer
-from musigen.player.player import Score
+from musigen.player.player import Tune
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     key = "C"
     scale = "major"
     root = 4
-    population_size = 10
+    population_size = 1
     num_mutations = 2
     mutation_probability = 0.5
     bpm = 128
@@ -33,7 +33,7 @@ def main():
     folder_name = str(int(datetime.now().timestamp()))
     s = pyo.Server().boot()
 
-    tune = Score(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
+    tune = Tune(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
 
     population_id = 0
     population = [
@@ -96,16 +96,16 @@ def main():
 
         time.sleep(1)
 
-        events = player.genome_to_events(population[1], tune)
-        for e in events:
-            e.play()
-        s.start()
-        input("here is the second best …")
-        s.stop()
-        for e in events:
-            e.stop()
+        # events = player.genome_to_events(population[1], tune)
+        # for e in events:
+        #     e.play()
+        # s.start()
+        # input("here is the second best …")
+        # s.stop()
+        # for e in events:
+        #     e.stop()
 
-        time.sleep(1)
+        # time.sleep(1)
 
         print("saving population midi …")
         for i, genome in enumerate(population):

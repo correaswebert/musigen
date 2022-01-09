@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import time
 from musigen.algo.algo import Genome
 from musigen.misc.helper import int_from_bits
@@ -6,11 +6,11 @@ import pyo
 
 
 @dataclass
-class Score:
+class Tune:
     num_bars: int
     num_notes: int
     num_steps: int
-    has_pauses: bool
+    pauses: bool
     key: str
     scale: str
     root: int
@@ -18,9 +18,10 @@ class Score:
 
 @dataclass
 class Melody:
-    notes: list[int] = field(default_factory=list)
-    velocity: list[int] = field(default_factory=list)
-    beat: list[int] = field(default_factory=list)
+    notes: list[int]
+    velocity: list[int]
+    beat: list[int]
+
 
 class MusicPlayer:
 
@@ -57,7 +58,7 @@ class MusicPlayer:
         "minorBlues",
     ]
 
-    def genome_to_melody(self, genome: Genome, tune: Score) -> Melody:
+    def genome_to_melody(self, genome: Genome, tune: Tune) -> Melody:
         notes = [
             genome[i * self.BITS_PER_NOTE : i * self.BITS_PER_NOTE + self.BITS_PER_NOTE]
             for i in range(tune.num_bars * tune.num_notes)
@@ -67,12 +68,12 @@ class MusicPlayer:
 
         scl = pyo.EventScale(root=tune.key, scale=tune.scale, first=tune.root)
 
-        melody = Melody()
+        melody = Melody(notes=[], velocity=[], beat=[])
 
         for note in notes:
             integer = int_from_bits(note)
 
-            if not tune.has_pauses:
+            if not tune.pauses:
                 integer %= pow(2, self.BITS_PER_NOTE - 1)
 
             if integer >= pow(2, self.BITS_PER_NOTE - 1):
@@ -96,7 +97,7 @@ class MusicPlayer:
         melody.notes = steps
         return melody
 
-    def genome_to_events(self, genome: Genome, tune: Score) -> list[pyo.Events]:
+    def genome_to_events(self, genome: Genome, tune: Tune) -> list[pyo.Events]:
         melody = self.genome_to_melody(genome, tune)
 
         return [
@@ -113,22 +114,24 @@ class MusicPlayer:
             for step in melody.notes
         ]
 
-    def play_tune(self, genome: Genome, s: pyo.Server, tune: Score):
-        # play metronome
-        self.metronome(tune.bpm)
+    def play_tune(self, genome: Genome, s: pyo.Server, tune: Tune):
+        m = self.metronome(tune.bpm)
 
         events = self.genome_to_events(genome, tune)
         for e in events:
             e.play()
         s.start()
 
+        rating = input("Rating (0-5)")
+
         for e in events:
             e.stop()
         s.stop()
+        time.sleep(1)
 
     def metronome(self, bpm: int):
         met = pyo.Metro(time=60 / bpm).play()
         t = pyo.CosTable([(0, 0), (50, 1), (200, 0.3), (500, 0)])
-        amplitute = pyo.TrigEnv(met, table=t, dur=0.25, mul=1)
-        frequency = pyo.Iter(met, choice=[660, 440, 440, 440])
-        return pyo.Sine(freq=frequency, mul=amplitute).mix(2).out()
+        amp = pyo.TrigEnv(met, table=t, dur=0.25, mul=1)
+        freq = pyo.Iter(met, choice=[660, 440, 440, 440])
+        return pyo.Sine(freq=freq, mul=amp).mix(2).out()
