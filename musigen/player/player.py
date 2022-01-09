@@ -114,8 +114,9 @@ class MusicPlayer:
             for step in melody.notes
         ]
 
-    def play_tune(self, genome: Genome, s: pyo.Server, tune: Tune):
-        m = self.metronome(tune.bpm)
+    def play_tune(self, genome: Genome, s: pyo.Server, tune: Tune, with_metronome: bool = False):
+        if with_metronome:
+            self.play_metronome(tune.bpm)
 
         events = self.genome_to_events(genome, tune)
         for e in events:
@@ -129,7 +130,7 @@ class MusicPlayer:
         s.stop()
         time.sleep(1)
 
-    def metronome(self, bpm: int):
+    def play_metronome(self, bpm: int):
         met = pyo.Metro(time=60 / bpm).play()
         t = pyo.CosTable([(0, 0), (50, 1), (200, 0.3), (500, 0)])
         amp = pyo.TrigEnv(met, table=t, dur=0.25, mul=1)

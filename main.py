@@ -1,6 +1,7 @@
+import datetime
 import random
 import time
-from datetime import datetime
+from pathlib import Path
 
 import pyo
 
@@ -13,8 +14,7 @@ from musigen.algo.algo import (
 )
 from musigen.misc.helper import get_fitness_score
 from musigen.player.midi import save_genome_to_midi
-from musigen.player.player import MusicPlayer
-from musigen.player.player import Tune
+from musigen.player.player import MusicPlayer, Tune
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
     mutation_probability = 0.5
     bpm = 128
 
-    folder_name = str(int(datetime.now().timestamp()))
+    dirname = Path(f"./midi/{datetime.datetime.now():%d-%m-%Y-%H-%M}")
     s = pyo.Server().boot()
 
     tune = Tune(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
@@ -109,11 +109,12 @@ def main():
 
         print("saving population midi …")
         for i, genome in enumerate(population):
-            filepath = f"{folder_name}/{population_id}/{scale}-{key}-{i}.mid"
+            filename = f"{scale}-{key}-{i}.mid"
+            filepath = dirname / f"{population_id}" / filename
             save_genome_to_midi(filepath, genome, tune)
         print("done")
 
-        if input("continue? [Y/n]").lower() == "y":
+        if input("continue? [Y/n]").lower() != "y":
             break
 
         population = next_generation

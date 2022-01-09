@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from midiutil import MIDIFile
 
@@ -8,7 +9,7 @@ from musigen.player.player import MusicPlayer as player
 from musigen.player.player import Tune, Melody
 
 
-def save_genome_to_midi(filename: str, genome: Genome, tune: Tune):
+def save_genome_to_midi(filename: Path, genome: Genome, tune: Tune):
     melody: Melody = player().genome_to_melody(genome, tune)
 
     if len(melody.notes[0]) != len(melody.beat) or len(melody.notes[0]) != len(
