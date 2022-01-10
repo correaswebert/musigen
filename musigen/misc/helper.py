@@ -4,8 +4,8 @@ def int_from_bits(bits: list[int]) -> int:
 
 def get_fitness_score() -> int:
     try:
-        rating = input("Rating (0-5)")
-        rating = int(rating)
+        rating_input = input("Rating (0-5)")
+        rating = int(rating_input)
     except ValueError:
         rating = 0
 
