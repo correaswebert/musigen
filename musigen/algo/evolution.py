@@ -1,6 +1,6 @@
 import random
 
-from .genome import Genome, genome_to_string
+from .genome import Genome
 from .population import Population
 
 
@@ -56,7 +56,7 @@ class Evolution:
         crossover_genome_a = genome_a[0:cpt] + genome_b[cpt:]
         crossover_genome_b = genome_b[0:cpt] + genome_a[cpt:]
 
-        return [crossover_genome_a, crossover_genome_b]
+        return crossover_genome_a, crossover_genome_b
 
     # FIX: parameter genome changes as a side-effect
     def create_mutations(self, genome: Genome) -> Genome:
@@ -86,7 +86,7 @@ class Evolution:
         ppl.sort_population(inplace=True)
 
         if ppl.get_genome_fitness(index=0) >= self.fitness_limit:
-            return
+            return ppl.genomes
 
         # top two genomes of the population carried forward
         next_generation = ppl.genomes[0:2]

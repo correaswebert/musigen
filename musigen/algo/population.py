@@ -4,9 +4,10 @@ from .genome import Genome, generate_genome, genome_to_string
 
 
 class Population:
-    weighted_population: list[Genome] = None
-    genomes: list[Genome] = None
-    fitness: list[int] = None
+    def __init__(self):
+        self.weighted_population: list[Genome] = []
+        self.genomes: list[Genome] = []
+        self.fitness: list[int] = []
 
     def __len__(self) -> int:
         return len(self.genomes)
@@ -25,8 +26,8 @@ class Population:
 
         :returns: a list of two genomes
         """
-
-        return tuple(random.sample(population=self.weighted_population, k=2))
+        genome_a, genome_b = random.sample(population=self.weighted_population, k=2)
+        return genome_a, genome_b
 
     def get_genome_fitness(self, index: int) -> int:
         """Get the fitness of genome at given index
@@ -37,7 +38,7 @@ class Population:
 
         return self.fitness[index]
 
-    def generate_weighted_distribution(self) -> list[Genome]:
+    def generate_weighted_distribution(self):
         """Generate a new population weighted on fitness
 
         Create multiple copies of a specific genome based on its fitness. Hence, if
@@ -48,8 +49,6 @@ class Population:
         :param fitness_func: to evaluate genome fitness
         :returns: a new population weighted on fitness
         """
-
-        self.weighted_population: list[Genome] = []
 
         for genome in self.genomes:
             genome_copies = [genome] * (self.eval_genome_fitness(genome) + 1)
