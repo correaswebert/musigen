@@ -39,7 +39,7 @@ class AudioServer:
 
         return [
             pyo.Events(
-                midinote=pyo.EventSeq(step, occurrences=1),
+                midinote=pyo.EventSeq(note, occurrences=1),
                 midivel=pyo.EventSeq(melody.velocity, occurrences=1),
                 beat=pyo.EventSeq(melody.beat, occurrences=1),
                 attack=self.ATTACK,
@@ -48,7 +48,7 @@ class AudioServer:
                 release=self.RELEASE,
                 bpm=tune_md.bpm,
             )
-            for step in melody.notes
+            for note in melody.notes
         ]
 
     def play_tune(

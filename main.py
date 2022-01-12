@@ -1,12 +1,14 @@
 import datetime
 import random
 from pathlib import Path
+import itertools
 
 from musigen.algo.evolution import Evolution
 from musigen.algo.population import Population
-from musigen.misc.helper import get_fitness_score
-from musigen.player.midi import save_genome_to_midi
-from musigen.player.server import AudioServer, TuneMetadata
+from musigen.misc import helper
+from musigen.player import midi
+from musigen.player.server import AudioServer
+from musigen.player.tune import TuneMetadata
 
 
 def main():
@@ -22,40 +24,9 @@ def main():
     mutation_probability = 0.5
     bpm = 128
 
-    KEYS = [
-        "C",
-        "C#",
-        "Db",
-        "D",
-        "D#",
-        "Eb",
-        "E",
-        "F",
-        "F#",
-        "Gb",
-        "G",
-        "G#",
-        "Ab",
-        "A",
-        "A#",
-        "Bb",
-        "B",
-    ]
-
-    SCALES = [
-        "major",
-        "minorM",
-        "dorian",
-        "phrygian",
-        "lydian",
-        "mixolydian",
-        "majorBlues",
-        "minorBlues",
-    ]
+    tune = TuneMetadata(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
 
     dirname = Path(f"./midi/{datetime.datetime.now():%d-%m-%Y-%H-%M}")
-
-    tune = TuneMetadata(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
 
     player = AudioServer()
 
@@ -72,20 +43,17 @@ def main():
         genome_length=(num_bars * num_notes * AudioServer.BITS_PER_NOTE),
     )
 
-    population_id = 0
-    while True:
+    for population_id in itertools.count(start=0):
         try:
             random.shuffle(ppl.genomes)
 
             # generate fitness scores
             for i, genome in enumerate(ppl.genomes):
                 player.play_tune(genome, tune, with_metronome=True)
-                ppl.fitness[i] = get_fitness_score()
+                ppl.fitness[i] = helper.get_fitness_score()
 
             evo.run_evolution(ppl)
             ppl.print_stats(population_id)
-
-            population_id += 1
 
         except KeyboardInterrupt:
             player.stop_server()
@@ -99,7 +67,7 @@ def main():
     for i, genome in enumerate(ppl.genomes[:2]):
         filename = f"{scale}-{key}-{i}.mid"
         filepath = dirname / f"{population_id}" / filename
-        save_genome_to_midi(filepath, genome, tune)
+        midi.save_genome_data(genome, tune, filepath)
 
     print("Done.")
 

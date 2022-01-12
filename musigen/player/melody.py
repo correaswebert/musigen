@@ -7,9 +7,9 @@ from .tune import TuneMetadata
 
 class Melody:
     def __init__(self, bits_per_note) -> None:
-        self.notes: list[int] = []
+        self.notes: list[list[int]] = []
         self.velocity: list[int] = []
-        self.beat: list[int] = []
+        self.beat: list[float] = []
         self.bits_per_note = bits_per_note
 
     def from_genome(self, genome: Genome, tune: TuneMetadata, scale: pyo.EventScale):
@@ -19,21 +19,20 @@ class Melody:
         :param tune: dataclass containing tune metadata
         """
 
-        # break genome into list of its subsequences (encoding musical notes)
-        genome_subsequences = [
-            genome[i * self.bits_per_note : (i + 1) * self.bits_per_note]
-            for i in range(tune.num_bars * tune.num_notes)
-        ]
-
         note_length = 4 / tune.num_notes
         pause_threshhold = 1 << (self.bits_per_note - 1)
 
         # default unattainable value to remove length check (remove later)
         note_values: list[int] = [-1]
 
-        # TODO: use an interator instead of list comprehension for genome_subsequence
-        for subsequence in genome_subsequences:
-            subsequence_value = int_from_bits(subsequence)
+        # break genome into list of its subsequences (encoding musical notes)
+        genome_chunks = [
+            genome[i * self.bits_per_note : (i + 1) * self.bits_per_note]
+            for i in range(tune.num_bars * tune.num_notes)
+        ]
+
+        for genome_chunk in genome_chunks:
+            subsequence_value = int_from_bits(genome_chunk)
 
             if not tune.pauses:
                 subsequence_value %= pause_threshhold
@@ -57,7 +56,7 @@ class Melody:
 
         for step in range(tune.num_steps):
             note = [
-                scale[(note_value + step * 2) % len(scale)]
+                int(scale[(note_value + step * 2) % len(scale)])
                 for note_value in note_values
             ]
             self.notes.append(note)
