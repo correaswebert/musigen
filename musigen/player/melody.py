@@ -2,6 +2,7 @@ import pyo
 
 from ..algo.genome import Genome
 from ..misc.helper import int_from_bits
+from ..misc.logger import Logger
 from .tune import TuneMetadata
 
 
@@ -11,6 +12,7 @@ class Melody:
         self.velocity: list[int] = []
         self.beat: list[float] = []
         self.bits_per_note = bits_per_note
+        self.logger = Logger.get_logger()
 
     def from_genome(self, genome: Genome, tune: TuneMetadata, scale: pyo.EventScale):
         """Converts the data encoded in the genome to musical melody

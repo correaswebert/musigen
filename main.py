@@ -9,6 +9,7 @@ from musigen.misc import helper
 from musigen.player import midi
 from musigen.player.server import AudioServer
 from musigen.player.tune import TuneMetadata
+from musigen.misc.logger import Logger
 
 
 def main():
@@ -23,10 +24,15 @@ def main():
     num_mutations = 2
     mutation_probability = 0.5
     bpm = 128
+    log_filename = "file.log"
 
-    tune = TuneMetadata(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
+    musigen_logger = Logger()
+    musigen_logger.add_file_handler(log_filename)
+    musigen_logger.add_stream_handler(log_level="DEBUG")
 
     dirname = Path(f"./midi/{datetime.datetime.now():%d-%m-%Y-%H-%M}")
+
+    tune = TuneMetadata(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
 
     player = AudioServer()
 
