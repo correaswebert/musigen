@@ -5,13 +5,14 @@ name = "pypi"
 
 [packages]
 click = "==7.1.2"
-midiutil = "==1.2.1"
+MIDIUtil = "==1.2.1"
 pyo = "*"
-colorlog = "*"
 progress = "*"
 
 [dev-packages]
 mypy = "*"
+pylint = "*"
+colorlog = "*"
 
 [requires]
 python_version = "3.9"
