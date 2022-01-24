@@ -1,6 +1,6 @@
 import pyo
 
-from ..algo.genome import Genome
+from ..core.genome import Genome
 from .melody import Melody
 from .tune import TuneMetadata
 

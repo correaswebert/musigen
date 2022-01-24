@@ -3,8 +3,8 @@ import random
 from pathlib import Path
 import itertools
 
-from musigen.algo.evolution import Evolution
-from musigen.algo.population import Population
+from musigen.core.evolution import Evolution
+from musigen.core.population import Population
 from musigen.misc import helper
 from musigen.player import midi
 from musigen.player.server import AudioServer

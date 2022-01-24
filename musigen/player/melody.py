@@ -1,6 +1,6 @@
 import pyo
 
-from ..algo.genome import Genome
+from ..core.genome import Genome
 from ..misc.helper import int_from_bits
 from ..misc.logger import Logger
 from .tune import TuneMetadata

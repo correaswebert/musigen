@@ -5,7 +5,7 @@ from posixpath import basename
 import pyo
 from midiutil import MIDIFile
 
-from ..algo.genome import Genome
+from ..core.genome import Genome
 from .melody import Melody
 from .server import AudioServer
 from .tune import TuneMetadata
