@@ -1,8 +1,12 @@
-from typing import Optional
+import random
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from musigen.misc import helper
+
+from ..core.evolution import Evolution
+from ..core.population import Population
+from .hash import decodeUrl, encodeUrl
 
 app = FastAPI()
 
@@ -21,26 +25,28 @@ app.add_middleware(
 )
 
 
-def decodeUrl(url: str):
-    url_data = url.split("-")
-    bpm = url_data.pop()
-    scale = url_data.pop()
-    grid = [int(row, 16) for row in url_data]
-    return grid, scale, bpm
+def main(grid: list[int]):
+    mutation_probability = 0.5
+    num_mutations = 5
 
-def encodeUrl(grid, scale, bpm):
-    grid = [hex(row)[2:] for row in grid]
-    url = "-".join(map(str, grid))
-    url += f"-{scale}-{bpm}"
-    return url
+    evo = Evolution(
+        mutation_probability=mutation_probability,
+        num_mutation_rounds=num_mutations,
+        fitness_limit=5,
+        generation_limit=3,
+    )
+
+    ppl = Population()
+    random.shuffle(ppl.genomes)
+    evo.run_evolution(ppl)
+
+    return ppl.genomes
 
 
 @app.get("/{synthpad_data_url}")
 def read_item(synthpad_data_url: str):
     grid, scale, bpm = decodeUrl(synthpad_data_url)
-    # do some magic...
-    return encodeUrl(grid, scale, bpm)
 
-@app.get("/")
-def fn():
-    return "something..."
+    updated_grid = main(grid)
+
+    return encodeUrl(updated_grid, scale, bpm)
