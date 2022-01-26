@@ -1,13 +1,18 @@
 import random
+from typing import Optional
 
-from .genome import Genome, generate_genome, genome_to_string
+from .genome import Genome, generate_genome
 
 
 class Population:
-    def __init__(self):
+    def __init__(self, genomes: Optional[list[Genome]] = None):
         self.weighted_population: list[Genome] = []
-        self.genomes: list[Genome] = []
-        self.fitness: list[int] = []
+        if genomes is None:
+            self.genomes: list[Genome] = []
+            self.fitness: list[int] = []
+        else:
+            self.genomes: list[Genome] = genomes
+            self.fitness: list[int] = [0] * len(genomes)
 
     def __len__(self) -> int:
         return len(self.genomes)
@@ -77,6 +82,39 @@ class Population:
 
         self.genomes = [generate_genome(genome_length) for _ in range(population_size)]
         self.fitness = [0] * population_size
+
+    @classmethod
+    def from_hash(cls, population_hash: str):
+        """Set the genome values using the provided population hash
+
+        Population hash represents the population in a condensed manner.
+        It is a string of "-" separated rows represented in hex format.
+        For example, 123-123-123 represents the following matrix...
+            (123H === 100100011B)
+            false false true false false false true true
+            false false true false false false true true
+            false false true false false false true true
+        
+        Note: the MSB is always set, and to be ignored. This is helpful when all
+              of the values in a row are false, leading to the hash represented
+              as 0. This does not allow the number of columns to be determined.
+              However, 1_0000_0000B indicates there are 8 columns.
+
+        :param population_hash: hash representation of the list of genomes
+        """
+
+        genomes_hash = population_hash.split("-")
+        genomes_hash_hex = [int(x, 16) for x in genomes_hash]
+
+        def hash_to_genome(genome_hash_hex: int) -> Genome:
+            # ignore the 0b1 (MSB ignore logic in docstring note)
+            hash_binary = bin(genome_hash_hex)[3:]
+            hash_bit_gen = (bit for bit in hash_binary)
+            hash_bit_map = map(int, hash_bit_gen)
+            return list(hash_bit_map)
+        
+        genomes = [hash_to_genome(hash) for hash in genomes_hash_hex]
+        return cls(genomes)
 
     def population_fitness(self) -> int:
         """Calculate population fitness by summing individual genome fitness
