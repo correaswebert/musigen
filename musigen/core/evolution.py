@@ -45,6 +45,7 @@ class Evolution:
         genome_a, genome_b = genome_pair
 
         if len(genome_a) != len(genome_b):
+            print(genome_pair)
             raise ValueError("Genomes a and b must be of same length")
 
         genome_length = len(genome_a)
@@ -82,16 +83,17 @@ class Evolution:
         :param generate_stats: if True then intermediate round stats shown
         """
 
-        # var iteration is function scoped
+        ppl.generate_weighted_distribution()
         ppl.sort_population(inplace=True)
 
         if ppl.get_genome_fitness(index=0) >= self.fitness_limit:
             return ppl.genomes
 
         # top two genomes of the population carried forward
-        next_generation = ppl.genomes[0:2]
+        # next_generation = ppl.genomes[0:2]
+        next_generation = []
 
-        for _ in range(len(ppl) // 2 - 1):
+        for _ in range(len(ppl) // 2):
             parents = ppl.pair_selection()
             offspring_a, offspring_b = self.single_point_crossover(parents)
 
@@ -100,4 +102,8 @@ class Evolution:
 
             next_generation.extend([mutated_offspring_a, mutated_offspring_b])
 
+        for i in range(4):
+            print(ppl.genomes[i])
+            print(next_generation[i])
+            print()
         return next_generation

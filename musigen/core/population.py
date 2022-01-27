@@ -115,6 +115,16 @@ class Population:
         
         genomes = [hash_to_genome(hash) for hash in genomes_hash_hex]
         return cls(genomes)
+    
+    def to_hash(self) -> str:
+        def genome_to_hash(genome: Genome) -> str:
+            genome_int_map = "".join(map(str, genome))
+            genome_bin = "1" + genome_int_map
+            return int(genome_bin, 2)
+        
+        genomes_bin = [genome_to_hash(genome) for genome in self.genomes]
+        genomes_hex = [hex(genome_bin)[2:] for genome_bin in genomes_bin]
+        return "-".join(genomes_hex)
 
     def population_fitness(self) -> int:
         """Calculate population fitness by summing individual genome fitness

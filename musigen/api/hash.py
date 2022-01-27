@@ -1,13 +1,11 @@
 def decodeUrl(url: str):
-    url_data = url.split("-")
+    url_data = url.rsplit("-", maxsplit=2)
     bpm = url_data.pop()
     scale = url_data.pop()
-    grid = [int(row, 16) for row in url_data]
-    return grid, scale, bpm
+    grid_hash = url_data.pop()
+    return grid_hash, scale, bpm
 
 
 def encodeUrl(grid, scale, bpm):
-    grid = [hex(row)[2:] for row in grid]
-    url = "-".join(map(str, grid))
-    url += f"-{scale}-{bpm}"
+    url = f"{grid}-{scale}-{bpm}"
     return url
