@@ -5,11 +5,11 @@ import itertools
 
 from musigen.core.evolution import Evolution
 from musigen.core.population import Population
-from musigen.misc import helper
+from musigen.utils import helper
 from musigen.player import midi
 from musigen.player.server import AudioServer
 from musigen.player.tune import TuneMetadata
-from musigen.misc.logger import Logger
+from musigen.utils.logger import Logger
 
 
 def main():

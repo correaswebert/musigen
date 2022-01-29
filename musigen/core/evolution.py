@@ -102,8 +102,4 @@ class Evolution:
 
             next_generation.extend([mutated_offspring_a, mutated_offspring_b])
 
-        for i in range(4):
-            print(ppl.genomes[i])
-            print(next_generation[i])
-            print()
         return next_generation

@@ -1,8 +1,8 @@
 import pyo
 
 from ..core.genome import Genome
-from ..misc.helper import int_from_bits
-from ..misc.logger import Logger
+from ..utils.helper import int_from_bits
+from ..utils.logger import Logger
 from .tune import TuneMetadata
 
 
