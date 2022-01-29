@@ -9,6 +9,9 @@ MIDIUtil = "==1.2.1"
 pyo = "*"
 progress = "*"
 fastapi = "*"
+pymongo = "*"
+dnspython = "*"
+python-dotenv = "*"
 
 [dev-packages]
 mypy = "*"
