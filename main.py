@@ -13,41 +13,37 @@ from musigen.utils.logger import Logger
 
 
 def main():
-    num_bars = 8
-    num_notes = 4
-    num_steps = 1
-    pauses = True
-    key = "C"
-    scale = "major"
-    root = 4
-    population_size = 1
-    num_mutations = 2
-    mutation_probability = 0.5
-    bpm = 128
-    log_filename = "file.log"
-
     musigen_logger = Logger()
-    musigen_logger.add_file_handler(log_filename)
+    musigen_logger.add_file_handler(filename="file.log")
     musigen_logger.add_stream_handler(log_level="DEBUG")
 
-    dirname = Path(f"./midi/{datetime.datetime.now():%d-%m-%Y-%H-%M}")
+    outdir_name = Path(f"./midi/{datetime.datetime.now():%d-%m-%Y-%H-%M}")
 
-    tune = TuneMetadata(num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
-
-    player = AudioServer()
+    tune = TuneMetadata(
+        num_bars=8,
+        num_notes=4,
+        num_steps=1,
+        pauses=True,
+        key="C",
+        scale="major",
+        root="4",
+        bpm=128,
+    )
 
     evo = Evolution(
-        mutation_probability=mutation_probability,
-        num_mutation_rounds=num_mutations,
+        mutation_probability=0.1,
+        num_mutation_rounds=2,
         fitness_limit=5,
         generation_limit=3,
     )
 
     ppl = Population()
     ppl.generate_population(
-        population_size=population_size,
-        genome_length=(num_bars * num_notes * AudioServer.BITS_PER_NOTE),
+        population_size=5,
+        genome_length=(tune.num_bars * tune.num_notes * AudioServer.BITS_PER_NOTE),
     )
+
+    player = AudioServer()
 
     for population_id in itertools.count(start=0):
         try:
@@ -71,8 +67,8 @@ def main():
 
     print("Saving the top two tunes...")
     for i, genome in enumerate(ppl.genomes[:2]):
-        filename = f"{scale}-{key}-{i}.mid"
-        filepath = dirname / f"{population_id}" / filename
+        filename = f"{tune.scale}-{tune.key}-{i}.mid"
+        filepath = outdir_name / f"{population_id}" / filename
         midi.save_genome_data(genome, tune, filepath)
 
     print("Done.")
