@@ -1,5 +1,3 @@
-import random
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,12 +9,13 @@ app = FastAPI()
 
 origins = [
     "http://localhost",
-    "http://localhost:8000" "http://localhost:8080",
+    "http://localhost:8000",
+    "http://localhost:8080",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins="*",
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["get"],
     allow_headers=["*"],
@@ -24,7 +23,7 @@ app.add_middleware(
 
 
 def main(grid_hash: str) -> str:
-    mutation_probability = 0.5
+    mutation_probability = 0.05
     num_mutations = 5
 
     evo = Evolution(
@@ -35,9 +34,7 @@ def main(grid_hash: str) -> str:
     )
 
     ppl = Population.from_hash(grid_hash)
-    
     ppl.genomes = evo.run_evolution(ppl)
-
     return ppl.to_hash()
 
 
@@ -45,8 +42,10 @@ def main(grid_hash: str) -> str:
 def read_item(synthpad_data_url: str):
     if synthpad_data_url == "favicon.ico":
         return
-    
+
     grid_hash, scale, bpm = decodeUrl(synthpad_data_url)
     updated_grid_hash = main(grid_hash)
 
     return encodeUrl(updated_grid_hash, scale, bpm)
+
+@app.post()
